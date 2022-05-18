@@ -2,10 +2,25 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+}
+.hour-container {
+  display: flex;
+  flex-direction: row;
+  min-height: 9.5vh;
+  padding: 1px;
 }
 .heures-slice {
   border: 0.5px dashed rgb(196, 191, 191);
   flex: 1;
   display: flex;
+}
+.up {
+  border: 1px solid;
+}
+.down {
+  border: 1px solid;
+}
+.event-container {
+  display: flex;
+  flex: auto;
 }

@@ -7,7 +7,7 @@ import './Calendar.css';
 
 export default function Calendar() {
   const [eventsList, setEventsList] = useState(null);
-  const [horaires, setHoraires] = useState(new Map());
+  const [horaires, setHoraires] = useState(null);
 
   useEffect(() => {
     fetchElements();
@@ -15,15 +15,9 @@ export default function Calendar() {
 
   useEffect(() => {
     if (eventsList) {
+      handleHoraires()
     }
-  }, [])
-
-  const sortEvents = (list) => {
-    const listSorted =  list?.slice().sort((e1, e2) => {
-      return Date.parse('06/05/2022 ' + e1.start) - Date.parse('06/05/2022 ' + e2.start)
-    });
-    return listSorted;
-  }
+  }, [eventsList])
 
   const setPosition = (heure) => {
     const value = moment(heure, "HH:mm").get('minutes')
@@ -51,17 +45,21 @@ export default function Calendar() {
       })
       preHoraires.set(heure.id, listEvents);
     })
-    return preHoraires;
+    setHoraires(preHoraires);
   }
 
-  const setSize = (heureStart, heureEnd) => {
-    const start = Date.parse('06/05/2022 ' + heureStart);
-    const end = Date.parse('06/05/2022 ', heureEnd);
-    const diff = end - start;
-    console.log(typeof diff);
+  const setSize = (heureStart, duration) => {
+    const start = moment(heureStart, "HH:mm").get('minutes');
+    if (start === 0 ) {
+      if (duration < 60) {
+        return (duration * 100) / 60;
+      }
+      if (duration >= 60) {
+        return 100;
+      }
+    }
+    return (start * 100) / 60;
   }
-
-  handleHoraires()
 
   const fetchElements = () => {
     fetch('./input.json', {
@@ -78,32 +76,27 @@ export default function Calendar() {
             ...event,
             end: eventEnd,
             divPosition: setPosition(event.start),
+            divSize: setSize(event.start, event.duration),
           }
         }))
       })
   }
+
   return (
     <div className="calendar-container">
-      {/* {eventsList && sortEvents(eventsList).map((event) => (
-        <>
-          {event.idsHours.length === 1 ? (
-            <>
-              <div key={event.idsHours[0]} className='heures-slice'>
-                {event.start}-{event.end}
-              </div>
-            </>
-          ) : (
-            <>
-              <div key={event.idsHours[0]} className='heures-slice'>
-                {event.start}
-              </div>
-              <div key={event.idsHours[1]} className='heures-slice'>
-                {event.end}
-              </div>
-            </>
-          )}
-        </>
-      ))} */}
+      {horaires && HeuresList.map((heure) => (
+        <div className="hour-container" key={heure.id}>
+          {horaires.get(heure.id).map((event, index) => (
+            <div
+              className={`event-container ${event.divPosition}`}
+              key={index}
+              style={{ "height": event.divSize }}
+            >
+              {event.duration}
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
   )
 }
