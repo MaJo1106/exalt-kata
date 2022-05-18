@@ -6,12 +6,17 @@ import HeuresList from "../Constants";
 import './Calendar.css';
 
 export default function Calendar() {
-  const [eventsList, setEventsList] = useState([]);
+  const [eventsList, setEventsList] = useState(null);
   const [horaires, setHoraires] = useState(new Map());
 
   useEffect(() => {
     fetchElements();
   }, []);
+
+  useEffect(() => {
+    if (eventsList) {
+    }
+  }, [])
 
   const sortEvents = (list) => {
     const listSorted =  list?.slice().sort((e1, e2) => {
@@ -22,7 +27,6 @@ export default function Calendar() {
 
   const setPosition = (heure) => {
     const value = moment(heure, "HH:mm").get('minutes')
-    console.log(value);
     if (value === 0) {
       return 'up';
     }
@@ -31,30 +35,23 @@ export default function Calendar() {
 
   const handleHoraires = () => {
     const preHoraires = new Map();
-    HeuresList.forEach((heure, index) => {
+    HeuresList.forEach((heure) => {
+      let listEvents = [];
+      const heureStart = moment(heure.start, "HH:mm");
+      const heureEnd = moment(heure.end, "HH:mm");
       eventsList.forEach((event) => {
         const start = moment(event.start, "HH:mm");
         const end = moment(event.end, "HH:mm");
-        const heureStart = moment(heure.start, "HH:mm");
-        const heureEnd = moment(heure.end, "HH:mm");
-        console.log('----------------------------HORAS---------------------');
-        console.log('horaEvent', start.format("HH:mm"), end.format("HH:mm"), 'hora', heureStart.format("HH:mm"), heureEnd.format("HH:mm"));
-        console.log('--------------EVENT-------------------');
-        console.log(event, 'heure', heure.id);
-        if ((start.isSame(heureStart) || start.isBetween(heureStart, heureEnd)) && (end.isSame(heureEnd) || end.isBetween(heureStart, heureEnd))) {
-          console.log('----------------if dentro------------')
-          if (preHoraires.has(index)) {
-            console.log(preHoraires.get(index));
-            const otherProps = preHoraires.get(index);
-            preHoraires.set(index, [event, ...otherProps]);
-            console.log('prehorarireNew', preHoraires)
-          } else {
-            preHoraires.set(index, [event]);
-          }
-          console.log('Prehorarires vide', preHoraires)
+        if (
+          (start.isSame(heureStart) || start.isBetween(heureStart, heureEnd) || start.isBefore(heureStart)) &&
+          (end.isSame(heureEnd) || end.isBetween(heureStart, heureEnd) || end.isAfter(heureEnd))
+        ) {
+          listEvents.push(event)
         }
       })
+      preHoraires.set(heure.id, listEvents);
     })
+    return preHoraires;
   }
 
   const setSize = (heureStart, heureEnd) => {
