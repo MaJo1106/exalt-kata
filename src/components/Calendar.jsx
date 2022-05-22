@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import moment from "moment";
-import HeuresList from "../Constants";
+import HoursList from "../Constants";
 
 // style
 import './Calendar.css';
+import { setPosition, setSize } from "../utils/methods";
 
 export default function Calendar() {
   const [eventsList, setEventsList] = useState(null);
-  const [horaires, setHoraires] = useState(null);
+  const [schedule, setSchedule] = useState(null);
 
   useEffect(() => {
     fetchElements();
@@ -15,50 +16,29 @@ export default function Calendar() {
 
   useEffect(() => {
     if (eventsList) {
-      handleHoraires()
+      handleSchedule()
     }
   }, [eventsList])
 
-  const setPosition = (heure) => {
-    const value = moment(heure, "HH:mm").get('minutes')
-    if (value === 0) {
-      return 'up';
-    }
-    return 'down';
-  }
-
-  const handleHoraires = () => {
-    const preHoraires = new Map();
-    HeuresList.forEach((heure) => {
+  const handleSchedule = () => {
+    const preSchedule = new Map();
+    HoursList.forEach((heure) => {
       let listEvents = [];
-      const heureStart = moment(heure.start, "HH:mm");
-      const heureEnd = moment(heure.end, "HH:mm");
+      const hourStart = moment(heure.start, "HH:mm");
+      const hourEnd = moment(heure.end, "HH:mm");
       eventsList.forEach((event) => {
         const start = moment(event.start, "HH:mm");
         const end = moment(event.end, "HH:mm");
         if (
-          (start.isSame(heureStart) || start.isBetween(heureStart, heureEnd) || start.isBefore(heureStart)) &&
-          (end.isSame(heureEnd) || end.isBetween(heureStart, heureEnd) || end.isAfter(heureEnd))
+          (start.isSame(hourStart) || start.isBetween(hourStart, hourEnd) || start.isBefore(hourStart)) &&
+          (end.isSame(hourEnd) || end.isBetween(hourStart, hourEnd) || end.isAfter(hourEnd))
         ) {
           listEvents.push(event)
         }
       })
-      preHoraires.set(heure.id, listEvents);
+      preSchedule.set(heure.id, listEvents);
     })
-    setHoraires(preHoraires);
-  }
-
-  const setSize = (heureStart, duration) => {
-    const start = moment(heureStart, "HH:mm").get('minutes');
-    if (start === 0 ) {
-      if (duration < 60) {
-        return (duration * 100) / 60;
-      }
-      if (duration >= 60) {
-        return 100;
-      }
-    }
-    return (start * 100) / 60;
+    setSchedule(preSchedule);
   }
 
   const fetchElements = () => {
@@ -84,15 +64,15 @@ export default function Calendar() {
 
   return (
     <div className="calendar-container">
-      {horaires && HeuresList.map((heure) => (
+      {schedule && HoursList.map((heure) => (
         <div className="hour-container" key={heure.id}>
-          {horaires.get(heure.id).map((event, index) => (
+          {schedule.get(heure.id).map((event, index) => (
             <div
               className={`event-container ${event.divPosition}`}
               key={index}
               style={{ "height": event.divSize }}
             >
-              {event.duration}
+              {event.id}
             </div>
           ))}
         </div>

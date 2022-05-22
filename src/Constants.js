@@ -1,4 +1,4 @@
-const HeuresList = [
+const HoursList = [
   { id: '1' ,start: '09:00', end: '10:00'},
   { id: '2' ,start: '10:00', end: '11:00'},
   { id: '3' ,start: '11:00', end: '12:00'},
@@ -11,4 +11,4 @@ const HeuresList = [
   { id: '10' ,start: '18:00', end: '19:00'},
 ]
 
-export default HeuresList;
+export default HoursList;
